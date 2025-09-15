@@ -3,15 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;">
+  <meta name="description" content="TheSer — умный поисковик с распознаванием URL и поддержкой тёмной темы">
+  <meta name="keywords" content="поиск, поисковик, умный поиск, theser">
   <title>TheSer — умный поиск</title>
   <style>
-    /* Сброс стилей для Google Sites */
+    /* Сброс стилей */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
     body, html {
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
       overflow: hidden;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    
+    /* Переменные для темной и светлой темы */
+    :root {
+      --color-bg-light: #f5f7fa;
+      --color-text-light: #2d3748;
+      --color-accent-light: #4361ee;
+      --color-secondary-light: #7b68ee;
+      --color-error-light: #ff6b6b;
+      --color-success-light: #10b981;
+      --color-warning-light: #f59e0b;
+      --color-overlay-light: rgba(0, 0, 0, 0.1);
+      
+      --color-bg-dark: #1a1b1e;
+      --color-text-dark: #e2e8f0;
+      --color-accent-dark: #7b68ee;
+      --color-secondary-dark: #4361ee;
+      --color-error-dark: #ff6b6b;
+      --color-success-dark: #10b981;
+      --color-warning-dark: #f59e0b;
+      --color-overlay-dark: rgba(255, 255, 255, 0.05);
+      
+      --transition-speed: 0.3s;
+      --border-radius: 16px;
+      --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.15);
+      
+      /* Активные значения (изменяются при переключении темы) */
+      --color-bg: var(--color-bg-light);
+      --color-text: var(--color-text-light);
+      --color-accent: var(--color-accent-light);
+      --color-secondary: var(--color-secondary-light);
+      --color-error: var(--color-error-light);
+      --color-success: var(--color-success-light);
+      --color-warning: var(--color-warning-light);
+      --color-overlay: var(--color-overlay-light);
+    }
+    
+    body.dark {
+      --color-bg: var(--color-bg-dark);
+      --color-text: var(--color-text-dark);
+      --color-accent: var(--color-accent-dark);
+      --color-secondary: var(--color-secondary-dark);
+      --color-error: var(--color-error-dark);
+      --color-success: var(--color-success-dark);
+      --color-warning: var(--color-warning-dark);
+      --color-overlay: var(--color-overlay-dark);
     }
     
     #theser-container {
@@ -21,26 +79,21 @@
       width: 100%;
       height: 100%;
       z-index: 9999;
-      background: #f5f7fa;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--color-bg);
       display: flex;
       justify-content: center;
       align-items: center;
       overflow-y: auto;
       padding: 20px;
-      box-sizing: border-box;
+      transition: background-color var(--transition-speed);
     }
     
-    body.dark #theser-container {
-      background: #1a1b1e;
-    }
-
     .theser-close-btn {
       position: fixed;
       top: 15px;
       right: 15px;
       z-index: 10000;
-      background: rgba(255, 255, 255, 0.9);
+      background: var(--color-overlay);
       border: none;
       border-radius: 50%;
       width: 40px;
@@ -50,44 +103,16 @@
       justify-content: center;
       font-size: 20px;
       cursor: pointer;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow);
+      color: var(--color-text);
+      transition: all var(--transition-speed);
     }
     
-    body.dark .theser-close-btn {
-      background: rgba(45, 55, 72, 0.9);
-      color: white;
+    .theser-close-btn:hover {
+      transform: scale(1.1);
     }
 
-    :root {
-      --color-bg-light: #f5f7fa;
-      --color-text-light: #2d3748;
-      --color-accent-light: #4361ee;
-      --color-secondary-light: #7b68ee;
-      --color-error-light: #ff6b6b;
-      --color-success-light: #10b981;
-      --color-warning-light: #f59e0b;
-      
-      --color-bg-dark: #1a1b1e;
-      --color-text-dark: #e2e8f0;
-      --color-accent-dark: #7b68ee;
-      --color-secondary-dark: #4361ee;
-      --color-error-dark: #ff6b6b;
-      --color-success-dark: #10b981;
-      --color-warning-dark: #f59e0b;
-      
-      --transition-speed: 0.3s;
-      --border-radius: 16px;
-      --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.15);
-    }
-    
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-
+    /* Анимации */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(30px) scale(0.95); }
       to { opacity: 1; transform: translateY(0) scale(1); }
@@ -114,6 +139,11 @@
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.05); }
     }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
 
     .theser-content {
       text-align: center;
@@ -132,7 +162,6 @@
 
     body.dark .theser-content {
       background: rgba(26, 27, 30, 0.7);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
@@ -149,18 +178,11 @@
       font-size: clamp(2rem, 8vw, 3.5rem);
       font-weight: 800;
       user-select: none;
-      background: linear-gradient(135deg, var(--color-accent-light), var(--color-secondary-light));
+      background: linear-gradient(135deg, var(--color-accent), var(--color-secondary));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       animation: float 6s ease-in-out infinite;
-    }
-
-    body.dark .title {
-      background: linear-gradient(135deg, var(--color-accent-dark), var(--color-secondary-dark));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
     }
 
     .subtitle {
@@ -169,6 +191,7 @@
       margin-bottom: 2.5rem;
       font-weight: 500;
       line-height: 1.4;
+      transition: color var(--transition-speed);
     }
 
     body.dark .subtitle {
@@ -189,18 +212,12 @@
       outline: none;
       transition: all 0.3s ease;
       box-shadow: var(--shadow);
-      background: rgba(255, 255, 255, 0.9);
-      color: var(--color-text-light);
+      background: var(--color-overlay);
+      color: var(--color-text);
       font-weight: 500;
-      caret-color: var(--color-accent-light);
+      caret-color: var(--color-accent);
       padding-right: 50px;
       -webkit-appearance: none;
-    }
-
-    body.dark input[type="text"] {
-      background: rgba(45, 55, 72, 0.9);
-      color: var(--color-text-dark);
-      caret-color: var(--color-accent-dark);
     }
 
     input[type="text"]::placeholder {
@@ -215,11 +232,7 @@
 
     input.shake {
       animation: shake 0.4s ease;
-      box-shadow: 0 0 0 2px var(--color-error-light);
-    }
-
-    body.dark input.shake {
-      box-shadow: 0 0 0 2px var(--color-error-dark);
+      box-shadow: 0 0 0 2px var(--color-error);
     }
 
     .url-indicator {
@@ -243,39 +256,30 @@
     }
 
     .url-indicator.valid {
-      background-color: var(--color-success-light);
+      background-color: var(--color-success);
       color: white;
-    }
-
-    body.dark .url-indicator.valid {
-      background-color: var(--color-success-dark);
     }
 
     .url-indicator.invalid {
-      background-color: var(--color-error-light);
+      background-color: var(--color-error);
       color: white;
-    }
-
-    body.dark .url-indicator.invalid {
-      background-color: var(--color-error-dark);
     }
 
     .url-indicator.warning {
-      background-color: var(--color-warning-light);
+      background-color: var(--color-warning);
       color: white;
     }
 
-    body.dark .url-indicator.warning {
-      background-color: var(--color-warning-dark);
-    }
-
     .url-indicator.loading {
-      background-color: #d1d5db;
-      animation: pulse 1s infinite;
+      border: 2px solid #d1d5db;
+      border-top: 2px solid var(--color-accent);
+      animation: spin 1s linear infinite;
+      background: transparent;
     }
 
     body.dark .url-indicator.loading {
-      background-color: #4b5563;
+      border: 2px solid #4b5563;
+      border-top: 2px solid var(--color-accent);
     }
 
     .search-options {
@@ -291,7 +295,7 @@
       border: none;
       border-radius: 50px;
       background: rgba(67, 97, 238, 0.1);
-      color: var(--color-accent-light);
+      color: var(--color-accent);
       cursor: pointer;
       transition: all 0.3s ease;
       font-size: 0.9rem;
@@ -302,21 +306,11 @@
       touch-action: manipulation;
     }
 
-    body.dark .search-engine-btn {
-      background: rgba(123, 104, 238, 0.15);
-      color: var(--color-accent-dark);
-    }
-
     .search-engine-btn.active, .search-engine-btn:hover {
-      background: var(--color-accent-light);
+      background: var(--color-accent);
       color: white;
       transform: translateY(-2px);
       box-shadow: var(--shadow);
-    }
-
-    body.dark .search-engine-btn.active, 
-    body.dark .search-engine-btn:hover {
-      background: var(--color-accent-dark);
     }
 
     .hint {
@@ -327,6 +321,7 @@
       opacity: 0;
       animation: fadeIn 1s 1s ease forwards;
       line-height: 1.4;
+      transition: color var(--transition-speed);
     }
 
     body.dark .hint {
@@ -342,7 +337,7 @@
       cursor: pointer;
       font-size: 1.2rem;
       user-select: none;
-      color: var(--color-accent-light);
+      color: var(--color-accent);
       transition: all 0.3s ease;
       padding: 10px;
       border-radius: 50%;
@@ -356,11 +351,6 @@
       touch-action: manipulation;
     }
 
-    body.dark .theme-toggle {
-      background: rgba(123, 104, 238, 0.15);
-      color: var(--color-accent-dark);
-    }
-
     .theme-toggle:hover {
       transform: scale(1.1) rotate(180deg);
       box-shadow: var(--shadow-hover);
@@ -368,6 +358,8 @@
 
     .sun, .moon {
       transition: opacity 0.4s ease, transform 0.4s ease;
+      width: 24px;
+      height: 24px;
     }
 
     .moon {
@@ -405,7 +397,7 @@
     .shape-1 {
       width: 300px;
       height: 300px;
-      background: linear-gradient(45deg, var(--color-accent-light), var(--color-secondary-light));
+      background: linear-gradient(45deg, var(--color-accent), var(--color-secondary));
       top: -100px;
       left: -100px;
       animation: gradientShift 15s ease infinite;
@@ -414,19 +406,14 @@
     .shape-2 {
       width: 400px;
       height: 400px;
-      background: linear-gradient(45deg, var(--color-secondary-light), #9c6ade);
+      background: linear-gradient(45deg, var(--color-secondary), #9c6ade);
       bottom: -150px;
       right: -100px;
       animation: gradientShift 18s ease infinite reverse;
     }
 
-    body.dark .shape-1 {
-      background: linear-gradient(45deg, var(--color-accent-dark), var(--color-secondary-dark));
-      opacity: 0.3;
-    }
-
+    body.dark .shape-1,
     body.dark .shape-2 {
-      background: linear-gradient(45deg, var(--color-secondary-dark), #6d5baa);
       opacity: 0.3;
     }
 
@@ -437,7 +424,7 @@
       transform: translateX(-50%);
       padding: 12px 20px;
       border-radius: 8px;
-      background: var(--color-success-light);
+      background: var(--color-success);
       color: white;
       font-weight: 500;
       box-shadow: var(--shadow);
@@ -453,23 +440,11 @@
     }
 
     .status-toast.error {
-      background: var(--color-error-light);
+      background: var(--color-error);
     }
 
     .status-toast.warning {
-      background: var(--color-warning-light);
-    }
-
-    body.dark .status-toast {
-      background: var(--color-success-dark);
-    }
-
-    body.dark .status-toast.error {
-      background: var(--color-error-dark);
-    }
-
-    body.dark .status-toast.warning {
-      background: var(--color-warning-dark);
+      background: var(--color-warning);
     }
 
     .modal-overlay {
@@ -495,7 +470,7 @@
     }
 
     .modal {
-      background: var(--color-bg-light);
+      background: var(--color-bg);
       border-radius: var(--border-radius);
       padding: 1.5rem;
       width: 100%;
@@ -505,10 +480,6 @@
       transition: transform 0.3s ease;
     }
 
-    body.dark .modal {
-      background: var(--color-bg-dark);
-    }
-
     .modal-overlay.visible .modal {
       transform: translateY(0);
     }
@@ -516,14 +487,10 @@
     .modal-title {
       font-size: 1.25rem;
       margin-bottom: 1rem;
-      color: var(--color-error-light);
+      color: var(--color-error);
       display: flex;
       align-items: center;
       gap: 10px;
-    }
-
-    body.dark .modal-title {
-      color: var(--color-error-dark);
     }
 
     .modal-content {
@@ -554,39 +521,48 @@
 
     .modal-btn.cancel {
       background: rgba(0, 0, 0, 0.1);
-      color: var(--color-text-light);
-    }
-
-    body.dark .modal-btn.cancel {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--color-text-dark);
+      color: var(--color-text);
     }
 
     .modal-btn.continue {
-      background: var(--color-error-light);
+      background: var(--color-error);
       color: white;
     }
 
-    body.dark .modal-btn.continue {
-      background: var(--color-error-dark);
+    .modal-btn:hover {
+      transform: translateY(-2px);
     }
 
-    .modal-btn.cancel:hover {
-      background: rgba(0, 0, 0, 0.15);
+    /* Стили для автодополнения */
+    .autocomplete-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--color-bg);
+      border-radius: 0 0 var(--border-radius) var(--border-radius);
+      box-shadow: var(--shadow);
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      margin-top: 5px;
     }
 
-    body.dark .modal-btn.cancel:hover {
-      background: rgba(255, 255, 255, 0.15);
+    .autocomplete-suggestion {
+      padding: 12px 20px;
+      cursor: pointer;
+      text-align: left;
+      border-bottom: 1px solid var(--color-overlay);
+      transition: background-color 0.2s;
     }
 
-    .modal-btn.continue:hover {
-      background: var(--color-error-light);
-      filter: brightness(0.9);
+    .autocomplete-suggestion:hover,
+    .autocomplete-suggestion.selected {
+      background-color: var(--color-overlay);
     }
 
-    body.dark .modal-btn.continue:hover {
-      background: var(--color-error-dark);
-      filter: brightness(0.9);
+    .autocomplete-suggestion:last-child {
+      border-bottom: none;
     }
 
     /* Мобильная оптимизация */
@@ -771,7 +747,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-  <button class="theser-close-btn" id="theserCloseBtn" style="display: none;">×</button>
+  <button class="theser-close-btn" id="theserCloseBtn" style="display: none;" aria-label="Закрыть поиск">×</button>
   <div id="theser-container">
     <div class="background-shapes">
       <div class="shape shape-1"></div>
@@ -796,7 +772,7 @@
       <div class="search-wrapper">
         <input id="searchInput" type="text" placeholder="Введите запрос или URL адрес" 
               aria-label="Поле для ввода поискового запроса" autofocus autocomplete="off" />
-        <div class="url-indicator" id="urlIndicator">✓</div>
+        <div class="url-indicator" id="urlIndicator"></div>
       </div>
 
       <div class="search-options" aria-label="Выбор поисковой системы">
@@ -836,311 +812,473 @@
   </div>
 
   <script>
-    // Проверяем, находимся ли мы в iframe
-    const isInIframe = window.self !== window.top;
-    
-    // Если мы в iframe (Google Sites), показываем кнопку закрытия
-    if (isInIframe) {
-      document.getElementById('theserCloseBtn').style.display = 'flex';
-    }
-    
-    // Обработчик для кнопки закрытия
-    document.getElementById('theserCloseBtn').addEventListener('click', function() {
-      document.getElementById('theser-container').style.display = 'none';
-      this.style.display = 'none';
-    });
-    
-    // Остальной код поисковика
-    let userInput = '';
-    let currentEngine = 'google';
-    let isUrlValid = false;
-    let currentUrl = '';
-    const engines = {
-      google: { url: 'https://www.google.com/search?q=', hint: 'Google' },
-      yandex: { url: 'https://yandex.ru/search/?text=', hint: 'Yandex' },
-      bing: { url: 'https://www.bing.com/search?q=', hint: 'Bing' },
-      duckduckgo: { url: 'https://duckduckgo.com/?q=', hint: 'DuckDuckGo' },
-      brave: { url: 'https://search.brave.com/search?q=', hint: 'Brave' }
-    };
+    // Основной класс приложения
+    class TheSer {
+      constructor() {
+        this.isInIframe = window.self !== window.top;
+        this.userInput = '';
+        this.currentEngine = this.loadSetting('searchEngine', 'google');
+        this.isUrlValid = false;
+        this.currentUrl = '';
+        this.suggestions = [];
+        this.selectedSuggestionIndex = -1;
+        
+        this.engines = {
+          google: { url: 'https://www.google.com/search?q=', hint: 'Google' },
+          yandex: { url: 'https://yandex.ru/search/?text=', hint: 'Yandex' },
+          bing: { url: 'https://www.bing.com/search?q=', hint: 'Bing' },
+          duckduckgo: { url: 'https://duckduckgo.com/?q=', hint: 'DuckDuckGo' },
+          brave: { url: 'https://search.brave.com/search?q=', hint: 'Brave' }
+        };
 
-    const input = document.getElementById('searchInput');
-    const body = document.body;
-    const themeToggleBtn = document.querySelector('.theme-toggle');
-    const hintText = document.getElementById('hintText');
-    const engineButtons = document.querySelectorAll('.search-engine-btn');
-    const urlIndicator = document.getElementById('urlIndicator');
-    const statusToast = document.getElementById('statusToast');
-    const httpWarningModal = document.getElementById('httpWarningModal');
-    const cancelHttpBtn = document.getElementById('cancelHttp');
-    const continueHttpBtn = document.getElementById('continueHttp');
-
-    // Функция для проверки, является ли строка URL
-    function isValidUrl(string) {
-      try {
-        if (!/^https?:\/\//i.test(string)) {
-          return false;
+        this.init();
+      }
+      
+      init() {
+        this.cacheElements();
+        this.bindEvents();
+        this.loadTheme();
+        this.updateHint();
+        this.setActiveEngine(this.currentEngine);
+        
+        // Показать кнопку закрытия, если мы в iframe
+        if (this.isInIframe) {
+          this.theserCloseBtn.style.display = 'flex';
         }
         
-        const url = new URL(string);
-        return url.hostname.includes('.') && url.hostname.length > 3;
-      } catch (_) {
-        return false;
+        // Фокусировка на поле ввода после загрузки
+        setTimeout(() => {
+          this.searchInput.focus();
+        }, 500);
       }
-    }
-
-    // Функция для проверки доступности URL
-    async function checkUrlAvailability(url) {
-      try {
-        const response = await fetch(url, { 
-          method: 'HEAD',
-          mode: 'no-cors',
-          cache: 'no-cache'
+      
+      cacheElements() {
+        this.theserCloseBtn = document.getElementById('theserCloseBtn');
+        this.searchInput = document.getElementById('searchInput');
+        this.body = document.body;
+        this.themeToggleBtn = document.querySelector('.theme-toggle');
+        this.hintText = document.getElementById('hintText');
+        this.engineButtons = document.querySelectorAll('.search-engine-btn');
+        this.urlIndicator = document.getElementById('urlIndicator');
+        this.statusToast = document.getElementById('statusToast');
+        this.httpWarningModal = document.getElementById('httpWarningModal');
+        this.cancelHttpBtn = document.getElementById('cancelHttp');
+        this.continueHttpBtn = document.getElementById('continueHttp');
+      }
+      
+      bindEvents() {
+        // Обработчик для кнопки закрытия
+        this.theserCloseBtn.addEventListener('click', () => {
+          document.getElementById('theser-container').style.display = 'none';
+          this.theserCloseBtn.style.display = 'none';
         });
-        return true;
-      } catch (error) {
-        console.log('URL проверка не удалась:', error);
-        return false;
-      }
-    }
-
-    // Функция для обновления индикатора URL
-    function updateUrlIndicator(valid, loading = false, isHttp = false) {
-      if (loading) {
-        urlIndicator.textContent = '…';
-        urlIndicator.className = 'url-indicator loading';
-        urlIndicator.classList.add('visible');
-        return;
-      }
-      
-      if (valid) {
-        if (isHttp) {
-          urlIndicator.textContent = '!';
-          urlIndicator.className = 'url-indicator warning';
-        } else {
-          urlIndicator.textContent = '✓';
-          urlIndicator.className = 'url-indicator valid';
-        }
-      } else {
-        urlIndicator.textContent = '✕';
-        urlIndicator.className = 'url-indicator invalid';
-      }
-      
-      urlIndicator.classList.add('visible');
-    }
-
-    // Функция для показа статуса
-    function showStatus(message, isError = false, isWarning = false) {
-      statusToast.textContent = message;
-      statusToast.className = 'status-toast';
-      if (isError) statusToast.classList.add('error');
-      if (isWarning) statusToast.classList.add('warning');
-      statusToast.classList.add('visible');
-      
-      setTimeout(() => {
-        statusToast.classList.remove('visible');
-      }, 3000);
-    }
-
-    // Функция для обработки ввода
-    async function handleInput() {
-      userInput = input.value.trim();
-      
-      if (!userInput) {
-        urlIndicator.classList.remove('visible');
-        isUrlValid = false;
-        return;
-      }
-      
-      const hasProtocol = /^https?:\/\//i.test(userInput);
-      
-      if (hasProtocol) {
-        const looksLikeUrl = isValidUrl(userInput);
-        const isHttp = /^http:\/\//i.test(userInput);
         
-        if (looksLikeUrl) {
-          updateUrlIndicator(false, true);
-          const isAvailable = await checkUrlAvailability(userInput);
-          
-          if (isAvailable) {
-            updateUrlIndicator(true, false, isHttp);
-            isUrlValid = true;
-            currentUrl = userInput;
-          } else {
-            updateUrlIndicator(false);
-            isUrlValid = false;
+        // Переключение темы
+        this.themeToggleBtn.addEventListener('click', () => {
+          this.toggleTheme();
+        });
+        
+        // Обработка ввода
+        this.searchInput.addEventListener('input', () => {
+          this.handleInput();
+        });
+        
+        this.searchInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            if (this.selectedSuggestionIndex >= 0 && this.suggestions.length > 0) {
+              e.preventDefault();
+              this.searchInput.value = this.suggestions[this.selectedSuggestionIndex];
+              this.hideSuggestions();
+              this.handleInput();
+              this.performSearch();
+            } else {
+              this.performSearch();
+            }
+          } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            this.selectSuggestion('down');
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            this.selectSuggestion('up');
+          } else if (e.key === 'Escape') {
+            this.hideSuggestions();
           }
-        } else {
-          updateUrlIndicator(false);
-          isUrlValid = false;
-        }
-      } else {
-        urlIndicator.classList.remove('visible');
-        isUrlValid = false;
-      }
-    }
-
-    // Функция для выполнения поиска/перехода
-    async function performSearch() {
-      if (!userInput.trim()) {
-        input.classList.add('shake');
-        setTimeout(() => input.classList.remove('shake'), 400);
-        return;
-      }
-
-      if (isUrlValid && currentUrl) {
-        if (/^http:\/\//i.test(currentUrl)) {
-          showHttpWarning();
-        } else {
-          showStatus('Перенаправляем на сайт...');
+        });
+        
+        this.searchInput.addEventListener('focus', () => {
+          this.showSuggestions();
+        });
+        
+        this.searchInput.addEventListener('blur', () => {
+          // Не скрываем сразу, чтобы можно было кликнуть по предложению
+          setTimeout(() => this.hideSuggestions(), 200);
+        });
+        
+        // Выбор поисковой системы
+        this.engineButtons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            this.setActiveEngine(btn.dataset.engine);
+          });
+          
+          // Touch события для мобильных устройств
+          btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.setActiveEngine(btn.dataset.engine);
+          }, { passive: false });
+        });
+        
+        // Обработчики для модального окна HTTP предупреждения
+        this.cancelHttpBtn.addEventListener('click', () => {
+          this.hideHttpWarning();
+          this.showStatus('Переход отменен', false, true);
+        });
+        
+        this.continueHttpBtn.addEventListener('click', () => {
+          this.hideHttpWarning();
+          this.showStatus('Перенаправляем на сайт...', false, true);
           setTimeout(() => {
-            window.open(currentUrl, '_blank');
+            window.open(this.currentUrl, '_blank');
           }, 1000);
-        }
-      } else {
-        const searchURL = engines[currentEngine].url + encodeURIComponent(userInput);
-        window.open(searchURL, '_blank');
+        });
+        
+        // Закрытие модального окна по клику вне его
+        this.httpWarningModal.addEventListener('click', (e) => {
+          if (e.target === this.httpWarningModal) {
+            this.hideHttpWarning();
+          }
+        });
+        
+        // Обработка изменения системной цветовой схемы
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+          if (!this.loadSetting('theme')) {
+            this.body.classList.toggle('dark', e.matches);
+          }
+        });
       }
       
-      input.value = '';
-      userInput = '';
-      urlIndicator.classList.remove('visible');
-      isUrlValid = false;
-    }
-
-    // Функция для показа предупреждения о HTTP
-    function showHttpWarning() {
-      httpWarningModal.classList.add('visible');
-    }
-
-    // Функция для скрытия предупреждения о HTTP
-    function hideHttpWarning() {
-      httpWarningModal.classList.remove('visible');
-    }
-
-    // Обработчики для модального окна HTTP предупреждения
-    cancelHttpBtn.addEventListener('click', () => {
-      hideHttpWarning();
-      showStatus('Переход отменен', false, true);
-    });
-
-    continueHttpBtn.addEventListener('click', () => {
-      hideHttpWarning();
-      showStatus('Перенаправляем на сайт...', false, true);
-      setTimeout(() => {
-        window.open(currentUrl, '_blank');
-      }, 1000);
-    });
-
-    // Загрузка темы
-    function loadTheme() {
-      try {
-        const savedTheme = localStorage.getItem('theser-theme');
+      // Сохранение настроек
+      saveSetting(key, value) {
+        try {
+          localStorage.setItem(`theser-${key}`, value);
+        } catch (e) {
+          console.log('Ошибка сохранения настройки:', e);
+        }
+      }
+      
+      // Загрузка настроек
+      loadSetting(key, defaultValue = null) {
+        try {
+          return localStorage.getItem(`theser-${key}`) || defaultValue;
+        } catch (e) {
+          console.log('Ошибка загрузки настройки:', e);
+          return defaultValue;
+        }
+      }
+      
+      // Загрузка темы
+      loadTheme() {
+        const savedTheme = this.loadSetting('theme');
         const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         
         if (savedTheme) {
-          body.classList.toggle('dark', savedTheme === 'dark');
+          this.body.classList.toggle('dark', savedTheme === 'dark');
         } else {
-          body.classList.toggle('dark', systemDark);
+          this.body.classList.toggle('dark', systemDark);
         }
-      } catch (e) {
-        console.log('Ошибка доступа к localStorage');
       }
-    }
-
-    // Обновление подсказки
-    function updateHint() {
-      hintText.textContent = `Нажмите Enter для поиска в ${engines[currentEngine].hint}`;
-    }
-
-    loadTheme();
-    updateHint();
-
-    // Обработчики событий
-    themeToggleBtn.addEventListener('click', () => {
-      const isDark = body.classList.toggle('dark');
-      try {
-        localStorage.setItem('theser-theme', isDark ? 'dark' : 'light');
-      } catch (e) {
-        console.log('Ошибка сохранения темы');
+      
+      // Переключение темы
+      toggleTheme() {
+        const isDark = this.body.classList.toggle('dark');
+        this.saveSetting('theme', isDark ? 'dark' : 'light');
       }
-    });
-
-    input.addEventListener('input', () => {
-      handleInput();
-    });
-
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        performSearch();
-      }
-    });
-
-    // Добавляем обработчики для touch-событий
-    function addTouchListeners() {
-      engineButtons.forEach(btn => {
-        btn.addEventListener('touchstart', function(e) {
-          e.preventDefault();
-          engineButtons.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          currentEngine = btn.dataset.engine;
-          updateHint();
-        }, { passive: false });
+      
+      // Установка активной поисковой системы
+      setActiveEngine(engine) {
+        this.engineButtons.forEach(b => b.classList.remove('active'));
+        const activeBtn = Array.from(this.engineButtons).find(b => b.dataset.engine === engine);
+        if (activeBtn) activeBtn.classList.add('active');
         
-        btn.addEventListener('click', () => {
-          engineButtons.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          currentEngine = btn.dataset.engine;
-          updateHint();
-        });
-      });
-
-      themeToggleBtn.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        const isDark = body.classList.toggle('dark');
-        try {
-          localStorage.setItem('theser-theme', isDark ? 'dark' : 'light');
-        } catch (e) {
-          console.log('Ошибка сохранения темы');
-        }
-      }, { passive: false });
-
-      if (cancelHttpBtn) {
-        cancelHttpBtn.addEventListener('touchstart', function(e) {
-          e.preventDefault();
-          hideHttpWarning();
-          showStatus('Переход отменен', false, true);
-        }, { passive: false });
+        this.currentEngine = engine;
+        this.saveSetting('searchEngine', engine);
+        this.updateHint();
       }
+      
+      // Обновление подсказки
+      updateHint() {
+        if (this.isUrlValid) {
+          this.hintText.textContent = `Нажмите Enter для перехода по сайту`;
+        } else {
+          this.hintText.textContent = `Нажмите Enter для поиска в ${this.engines[this.currentEngine].hint}`;
+        }
+      }
+      
+      // Проверка безопасности URL
+      isValidURL(url) {
+        try {
+          const parsedUrl = new URL(url);
+          // Разрешаем только HTTP/HTTPS
+          return ['http:', 'https:'].includes(parsedUrl.protocol);
+        } catch (e) {
+          return false;
+        }
+      }
+      
+      // Проверка, является ли строка URL
+      looksLikeUrl(string) {
+        // Быстрая проверка по наличию пробелов
+        if (/\s/.test(string)) return false;
+        
+        try {
+          // Если строка начинается с протокола
+          if (/^https?:\/\//i.test(string)) {
+            const url = new URL(string);
+            return url.hostname.includes('.') && url.hostname.length > 3;
+          }
+          
+          // Проверка на доменное имя без протокола
+          if (/^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+/.test(string) && 
+              !string.includes(' ') && 
+              string.includes('.') && 
+              string.length > 3) {
+            return true;
+          }
+          
+          return false;
+        } catch (_) {
+          return false;
+        }
+      }
+      
+      // Нормализация URL (добавление https:// если нужно)
+      normalizeUrl(url) {
+        if (/^https?:\/\//i.test(url)) {
+          return url;
+        }
+        return 'https://' + url;
+      }
+      
+      // Обновление индикатора URL
+      updateUrlIndicator(valid, loading = false, isHttp = false) {
+        if (loading) {
+          this.urlIndicator.className = 'url-indicator loading';
+          this.urlIndicator.classList.add('visible');
+          return;
+        }
+        
+        if (valid) {
+          if (isHttp) {
+            this.urlIndicator.textContent = '!';
+            this.urlIndicator.className = 'url-indicator warning';
+          } else {
+            this.urlIndicator.textContent = '✓';
+            this.urlIndicator.className = 'url-indicator valid';
+          }
+        } else {
+          this.urlIndicator.textContent = '✕';
+          this.urlIndicator.className = 'url-indicator invalid';
+        }
+        
+        this.urlIndicator.classList.add('visible');
+      }
+      
+      // Показать статус
+      showStatus(message, isError = false, isWarning = false) {
+        this.statusToast.textContent = message;
+        this.statusToast.className = 'status-toast';
+        if (isError) this.statusToast.classList.add('error');
+        if (isWarning) this.statusToast.classList.add('warning');
+        this.statusToast.classList.add('visible');
+        
+        setTimeout(() => {
+          this.statusToast.classList.remove('visible');
+        }, 3000);
+      }
+      
+      // Обработка ввода
+      async handleInput() {
+        this.userInput = this.searchInput.value.trim();
+        
+        if (!this.userInput) {
+          this.urlIndicator.classList.remove('visible');
+          this.isUrlValid = false;
+          this.hideSuggestions();
+          this.updateHint();
+          return;
+        }
+        
+        // Показываем предложения
+        this.showSuggestions();
+        
+        const hasProtocol = /^https?:\/\//i.test(this.userInput);
+        
+        if (this.looksLikeUrl(this.userInput)) {
+          const normalizedUrl = this.normalizeUrl(this.userInput);
+          const isHttp = /^http:\/\//i.test(normalizedUrl);
+          
+          if (this.isValidURL(normalizedUrl)) {
+            this.updateUrlIndicator(true, false, isHttp);
+            this.isUrlValid = true;
+            this.currentUrl = normalizedUrl;
+          } else {
+            this.updateUrlIndicator(false);
+            this.isUrlValid = false;
+          }
+        } else {
+          this.urlIndicator.classList.remove('visible');
+          this.isUrlValid = false;
+        }
+        
+        this.updateHint();
+      }
+      
+      // Выполнение поиска/перехода
+      async performSearch() {
+        if (!this.userInput.trim()) {
+          this.searchInput.classList.add('shake');
+          setTimeout(() => this.searchInput.classList.remove('shake'), 400);
+          return;
+        }
 
-      if (continueHttpBtn) {
-        continueHttpBtn.addEventListener('touchstart', function(e) {
-          e.preventDefault();
-          hideHttpWarning();
-          showStatus('Перенаправляем на сайт...', false, true);
-          setTimeout(() => {
-            window.open(currentUrl, '_blank');
-          }, 1000);
-        }, { passive: false });
+        if (this.isUrlValid && this.currentUrl) {
+          // Проверяем URL на безопасность
+          if (!this.isValidURL(this.currentUrl)) {
+            this.showStatus('Ошибка: разрешены только HTTP/HTTPS ссылки!', true);
+            return;
+          }
+
+          if (/^http:\/\//i.test(this.currentUrl)) {
+            this.showHttpWarning();
+          } else {
+            this.showStatus('Перенаправляем на сайт...');
+            setTimeout(() => {
+              window.open(this.currentUrl, '_blank');
+            }, 1000);
+          }
+        } else {
+          const searchURL = this.engines[this.currentEngine].url + encodeURIComponent(this.userInput);
+          window.open(searchURL, '_blank');
+          this.saveToHistory(this.userInput);
+        }
+        
+        this.searchInput.value = '';
+        this.userInput = '';
+        this.urlIndicator.classList.remove('visible');
+        this.isUrlValid = false;
+        this.hideSuggestions();
+        this.updateHint();
+      }
+      
+      // Показать предупреждение о HTTP
+      showHttpWarning() {
+        this.httpWarningModal.classList.add('visible');
+      }
+      
+      // Скрыть предупреждение о HTTP
+      hideHttpWarning() {
+        this.httpWarningModal.classList.remove('visible');
+      }
+      
+      // Сохранение в историю
+      saveToHistory(query) {
+        try {
+          const history = JSON.parse(localStorage.getItem('theser-history') || '[]');
+          
+          // Добавляем запрос, если его еще нет в истории
+          if (!history.includes(query)) {
+            history.unshift(query);
+            // Сохраняем только последние 10 запросов
+            const limitedHistory = history.slice(0, 10);
+            localStorage.setItem('theser-history', JSON.stringify(limitedHistory));
+          }
+        } catch (e) {
+          console.log('Ошибка сохранения истории:', e);
+        }
+      }
+      
+      // Получение истории поиска
+      getHistory() {
+        try {
+          return JSON.parse(localStorage.getItem('theser-history') || '[]');
+        } catch (e) {
+          console.log('Ошибка загрузки истории:', e);
+          return [];
+        }
+      }
+      
+      // Показать предложения
+      showSuggestions() {
+        this.hideSuggestions();
+        
+        const history = this.getHistory();
+        const input = this.searchInput.value.trim().toLowerCase();
+        
+        if (input.length === 0 && history.length === 0) return;
+        
+        // Фильтруем историю по введенному тексту
+        this.suggestions = history.filter(item => 
+          item.toLowerCase().includes(input)
+        );
+        
+        if (this.suggestions.length === 0) return;
+        
+        const suggestionsDiv = document.createElement('div');
+        suggestionsDiv.className = 'autocomplete-suggestions';
+        suggestionsDiv.id = 'autocomplete-suggestions';
+        
+        this.suggestions.forEach((suggestion, index) => {
+          const div = document.createElement('div');
+          div.className = 'autocomplete-suggestion';
+          div.textContent = suggestion;
+          div.addEventListener('click', () => {
+            this.searchInput.value = suggestion;
+            this.hideSuggestions();
+            this.handleInput();
+          });
+          suggestionsDiv.appendChild(div);
+        });
+        
+        this.searchInput.parentNode.appendChild(suggestionsDiv);
+        this.selectedSuggestionIndex = -1;
+      }
+      
+      // Скрыть предложения
+      hideSuggestions() {
+        const suggestions = document.getElementById('autocomplete-suggestions');
+        if (suggestions) suggestions.remove();
+        this.selectedSuggestionIndex = -1;
+      }
+      
+      // Выбор предложения с клавиатуры
+      selectSuggestion(direction) {
+        if (this.suggestions.length === 0) return;
+        
+        const suggestions = document.querySelectorAll('.autocomplete-suggestion');
+        
+        if (direction === 'down') {
+          this.selectedSuggestionIndex = (this.selectedSuggestionIndex + 1) % this.suggestions.length;
+        } else if (direction === 'up') {
+          this.selectedSuggestionIndex = this.selectedSuggestionIndex - 1 < 0 
+            ? this.suggestions.length - 1 
+            : this.selectedSuggestionIndex - 1;
+        }
+        
+        suggestions.forEach((s, i) => {
+          s.classList.toggle('selected', i === this.selectedSuggestionIndex);
+        });
+        
+        // Прокрутка к выбранному элементу
+        if (suggestions[this.selectedSuggestionIndex]) {
+          suggestions[this.selectedSuggestionIndex].scrollIntoView({
+            block: 'nearest'
+          });
+        }
       }
     }
 
-    // Инициализация touch-обработчиков
-    addTouchListeners();
-
-    // Обработка изменения системной цветовой схемы
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-      if (!localStorage.getItem('theser-theme')) {
-        body.classList.toggle('dark', e.matches);
-      }
-    });
-
-    // Фокусировка на поле ввода после загрузки
-    window.addEventListener('load', function() {
-      setTimeout(function() {
-        if (input) {
-          input.focus();
-        }
-      }, 500);
+    // Инициализация приложения после загрузки DOM
+    document.addEventListener('DOMContentLoaded', () => {
+      new TheSer();
     });
   </script>
 </body>
